@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport TP3 - Service REST Calculatrice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 4px solid #2c3e50;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header h2 {
+            color: #7f8c8d;
+            font-size: 1.5em;
+            font-weight: normal;
+        }
+        
+        .header .info {
+            margin-top: 20px;
+            color: #95a5a6;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .section h3 {
+            color: #34495e;
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .section h4 {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .tech-stack {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .tech-stack ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .tech-stack li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .tech-stack li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .endpoint {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .endpoint .method {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .endpoint .url {
+            font-family: 'Courier New', monospace;
+            color: #2c3e50;
+        }
+        
+        .screenshot {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .screenshot img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .screenshot p {
+            margin-top: 10px;
+            font-style: italic;
+            color: #7f8c8d;
+            text-align: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        table th {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .file-structure {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+        }
+        
+        .file-structure .folder {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        
+        .file-structure .file {
+            color: #3498db;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- En-tête -->
+        <div class="header">
+            <h1>Rapport de TP3</h1>
+            <h2>Service REST Calculatrice avec JAX-RS et Jersey</h2>
+            <div class="info">
+                <p><strong>Module:</strong> SOA (Service Oriented Architecture)</p>
+                <p><strong>Niveau:</strong> LSI 3</p>
+                <p><strong>Date:</strong> Décembre 2025</p>
+            </div>
+        </div>
+
+        <!-- Table des matières -->
+        <div class="section">
+            <h2>Table des matières</h2>
+            <ol>
+                <li>Introduction et Objectifs</li>
+                <li>Environnement Technique</li>
+                <li>Architecture du Projet</li>
+                <li>Structure du Projet Maven</li>
+                <li>Implémentation des Classes</li>
+                <li>Configuration JAX-RS</li>
+                <li>Déploiement</li>
+                <li>Tests avec Postman</li>
+                <li>Fonctionnement de l'API</li>
+                <li>Conclusion</li>
+            </ol>
+        </div>
+
+        <!-- 1. Introduction -->
+        <div class="section">
+            <h2>1. Introduction et Objectifs</h2>
+            <p>
+                Ce travail pratique a pour objectif de développer un service REST complet en Java, 
+                permettant d'effectuer des opérations arithmétiques de base (addition, soustraction, 
+                multiplication, division). Le projet illustre les principes fondamentaux de l'architecture 
+                REST et l'utilisation de JAX-RS (Jakarta RESTful Web Services) avec Jersey comme implémentation.
+            </p>
+            
+            <h3>Objectifs pédagogiques</h3>
+            <ul style="margin-left: 40px;">
+                <li>Comprendre la conception d'une API REST selon les principes du cours</li>
+                <li>Créer un service REST en Java avec JAX-RS</li>
+                <li>Utiliser Jersey comme implémentation JAX-RS</li>
+                <li>Structurer un projet Maven avec packaging WAR</li>
+                <li>Déployer le projet dans Apache Tomcat</li>
+                <li>Manipuler les annotations REST (@Path, @GET, @QueryParam, @Produces, etc.)</li>
+                <li>Tester les endpoints avec Postman</li>
+            </ul>
+        </div>
+
+        <!-- 2. Environnement Technique -->
+        <div class="section">
+            <h2>2. Environnement Technique</h2>
+            
+            <div class="tech-stack">
+                <h3>Technologies et Outils Utilisés</h3>
+                <ul>
+                    <li><strong>Langage:</strong> Java 11</li>
+                    <li><strong>Build Tool:</strong> Apache Maven 3.x</li>
+                    <li><strong>Framework REST:</strong> JAX-RS (Jakarta RESTful Web Services) 3.1.0</li>
+                    <li><strong>Implémentation JAX-RS:</strong> Jersey 3.1.3</li>
+                    <li><strong>Serveur d'Application:</strong> Apache Tomcat 10.x</li>
+                    <li><strong>Format de données:</strong> JSON (avec Jackson)</li>
+                    <li><strong>Outil de test:</strong> Postman</li>
+                    <li><strong>IDE:</strong> Visual Studio Code / IntelliJ IDEA</li>
+                </ul>
+            </div>
+
+            <h3>Dépendances Maven Principales</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dépendance</th>
+                        <th>Version</th>
+                        <th>Rôle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>jakarta.ws.rs-api</td>
+                        <td>3.1.0</td>
+                        <td>API JAX-RS pour les annotations REST</td>
+                    </tr>
+                    <tr>
+                        <td>jersey-server</td>
+                        <td>3.1.3</td>
+                        <td>Implémentation serveur Jersey</td>
+                    </tr>
+                    <tr>
+                        <td>jersey-container-servlet</td>
+                        <td>3.1.3</td>
+                        <td>Conteneur servlet pour Jersey</td>
+                    </tr>
+                    <tr>
+                        <td>jersey-hk2</td>
+                        <td>3.1.3</td>
+                        <td>Injection de dépendances</td>
+                    </tr>
+                    <tr>
+                        <td>jersey-media-json-jackson</td>
+                        <td>3.1.3</td>
+                        <td>Sérialisation/désérialisation JSON</td>
+                    </tr>
+                    <tr>
+                        <td>jakarta.servlet-api</td>
+                        <td>5.0.0</td>
+                        <td>API Servlet Jakarta EE</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3. Architecture -->
+        <div class="section">
+            <h2>3. Architecture du Projet</h2>
+            
+            <h3>3.1 Architecture REST</h3>
+            <p>
+                L'architecture suit le modèle REST (Representational State Transfer) qui repose sur 
+                le protocole HTTP. Le schéma ci-dessous illustre le flux de communication entre le 
+                client et le serveur :
+            </p>
+            
+            <div class="screenshot">
+                <img src="file:///C:/Users/Mohamed Amich/.gemini/antigravity/brain/19c37f2e-7ce3-403c-a661-b45872104986/rest_architecture_diagram_1766079911045.png" 
+                     alt="Architecture REST">
+                <p>Figure 1 : Architecture REST - Flux Client → Tomcat → Jersey → Ressource</p>
+            </div>
+
+            <h3>3.2 Flux de traitement d'une requête</h3>
+            <ol style="margin-left: 40px;">
+                <li><strong>Client (Postman/Navigateur)</strong> : Envoie une requête HTTP GET avec des paramètres</li>
+                <li><strong>Apache Tomcat</strong> : Reçoit la requête et la transmet au conteneur servlet</li>
+                <li><strong>Jersey (JAX-RS)</strong> : Analyse l'URL, identifie la ressource et la méthode correspondante</li>
+                <li><strong>CalculRest (Ressource)</strong> : Traite la requête, appelle la logique métier</li>
+                <li><strong>Calculatrice (Logique métier)</strong> : Effectue le calcul</li>
+                <li><strong>Réponse JSON</strong> : Le résultat est sérialisé en JSON et renvoyé au client</li>
+            </ol>
+
+            <h3>3.3 Pattern MVC adapté</h3>
+            <p>Le projet suit une architecture en couches :</p>
+            <ul style="margin-left: 40px;">
+                <li><strong>Couche Présentation (REST)</strong> : CalculRest.java - Gère les requêtes HTTP</li>
+                <li><strong>Couche Métier</strong> : Calculatrice.java - Contient la logique de calcul</li>
+                <li><strong>Couche Modèle</strong> : Operation.java - Enumération des opérations</li>
+                <li><strong>Configuration</strong> : RestApplication.java - Point d'entrée JAX-RS</li>
+            </ul>
+        </div>
+
+        <!-- 4. Structure du Projet -->
+        <div class="section">
+            <h2>4. Structure du Projet Maven</h2>
+            
+            <div class="file-structure">
+<pre>
+<span class="folder">tp3/</span>
+├── <span class="folder">src/</span>
+│   ├── <span class="folder">main/</span>
+│   │   ├── <span class="folder">java/</span>
+│   │   │   └── <span class="folder">com/example/rest/</span>
+│   │   │       ├── <span class="file">Calculatrice.java</span>        (Logique métier)
+│   │   │       ├── <span class="file">Operation.java</span>           (Enumération)
+│   │   │       ├── <span class="file">CalculRest.java</span>          (Ressource REST)
+│   │   │       └── <span class="file">RestApplication.java</span>     (Configuration JAX-RS)
+│   │   ├── <span class="folder">resources/</span>
+│   │   └── <span class="folder">webapp/</span>
+│   │       └── <span class="folder">WEB-INF/</span>
+│   │           └── <span class="file">web.xml</span>                  (Configuration servlet)
+│   └── <span class="folder">test/</span>
+├── <span class="folder">target/</span>
+│   └── <span class="file">calculatrice-rest.war</span>            (Fichier déployable)
+└── <span class="file">pom.xml</span>                              (Configuration Maven)
+</pre>
+            </div>
+
+            <div class="highlight">
+                <strong>Note importante :</strong> Le packaging est configuré en <code>war</code> dans le pom.xml, 
+                ce qui permet de générer un fichier WAR déployable sur Tomcat.
+            </div>
+        </div>
+
+        <!-- 5. Implémentation -->
+        <div class="section">
+            <h2>5. Implémentation des Classes</h2>
+
+            <h3>5.1 Classe Calculatrice.java</h3>
+            <p>
+                Cette classe contient la logique métier pure, sans aucune dépendance aux technologies REST. 
+                Elle implémente les quatre opérations arithmétiques de base.
+            </p>
+            
+            <div class="code-block">
+<pre>public class Calculatrice {
+    public double addition(double a, double b) {
+        return a + b;
+    }
+    
+    public double soustraction(double a, double b) {
+        return a - b;
+    }
+    
+    public double multiplication(double a, double b) {
+        return a * b;
+    }
+    
+    public double division(double a, double b) {
+        if (b == 0) {
+            throw new ArithmeticException("Division par zéro impossible");
+        }
+        return a / b;
+    }
+}</pre>
+            </div>
+
+            <h3>5.2 Enumération Operation.java</h3>
+            <p>
+                Définit les types d'opérations supportées avec une méthode de conversion depuis une chaîne.
+            </p>
+            
+            <div class="code-block">
+<pre>public enum Operation {
+    ADDITION("Addition"),
+    SOUSTRACTION("Soustraction"),
+    MULTIPLICATION("Multiplication"),
+    DIVISION("Division");
+    
+    private final String description;
+    
+    public static Operation fromString(String op) {
+        return Operation.valueOf(op.toUpperCase());
+    }
+}</pre>
+            </div>
+
+            <h3>5.3 Ressource REST CalculRest.java</h3>
+            <p>
+                Cette classe expose les endpoints REST. Elle utilise les annotations JAX-RS pour 
+                définir les routes et les méthodes HTTP.
+            </p>
+
+            <h4>Annotations principales utilisées :</h4>
+            <ul style="margin-left: 40px;">
+                <li><code>@Path("/calculatrice")</code> : Définit le chemin de base de la ressource</li>
+                <li><code>@GET</code> : Indique que la méthode répond aux requêtes HTTP GET</li>
+                <li><code>@Produces(MediaType.APPLICATION_JSON)</code> : Format de réponse JSON</li>
+                <li><code>@QueryParam("a")</code> : Récupère le paramètre 'a' de l'URL</li>
+                <li><code>@DefaultValue("0")</code> : Valeur par défaut si le paramètre est absent</li>
+            </ul>
+
+            <h3>5.4 Configuration RestApplication.java</h3>
+            <p>
+                Point d'entrée de l'application JAX-RS qui enregistre les ressources REST.
+            </p>
+            
+            <div class="code-block">
+<pre>@ApplicationPath("/api")
+public class RestApplication extends Application {
+    @Override
+    public Set&lt;Class&lt;?&gt;&gt; getClasses() {
+        Set&lt;Class&lt;?&gt;&gt; classes = new HashSet&lt;&gt;();
+        classes.add(CalculRest.class);
+        return classes;
+    }
+}</pre>
+            </div>
+        </div>
+
+        <!-- 6. Configuration JAX-RS -->
+        <div class="section">
+            <h2>6. Configuration JAX-RS</h2>
+
+            <h3>6.1 Fichier web.xml</h3>
+            <p>
+                Le fichier <code>web.xml</code> configure le servlet Jersey pour intercepter 
+                toutes les requêtes vers <code>/api/*</code>.
+            </p>
+
+            <div class="code-block">
+<pre>&lt;servlet&gt;
+    &lt;servlet-name&gt;Jersey REST Service&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.glassfish.jersey.servlet.ServletContainer&lt;/servlet-class&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;jakarta.ws.rs.Application&lt;/param-name&gt;
+        &lt;param-value&gt;com.example.rest.RestApplication&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;
+
+&lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;Jersey REST Service&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/api/*&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;</pre>
+            </div>
+
+            <h3>6.2 Configuration Maven (pom.xml)</h3>
+            <p>Points clés de la configuration :</p>
+            <ul style="margin-left: 40px;">
+                <li><strong>Packaging WAR</strong> : <code>&lt;packaging&gt;war&lt;/packaging&gt;</code></li>
+                <li><strong>Java 11</strong> : Version source et target</li>
+                <li><strong>Jersey 3.1.3</strong> : Compatible avec Jakarta EE 9+</li>
+                <li><strong>finalName</strong> : <code>calculatrice-rest</code> pour le fichier WAR</li>
+            </ul>
+        </div>
+
+        <!-- 7. Déploiement -->
+        <div class="section">
+            <h2>7. Déploiement sur Tomcat</h2>
+
+            <h3>7.1 Compilation du projet</h3>
+            <p>Pour compiler et packager le projet en fichier WAR :</p>
+            <div class="code-block">
+<pre>mvn clean package</pre>
+            </div>
+
+            <div class="success">
+                <strong>✓ BUILD SUCCESS</strong><br>
+                Le fichier WAR est généré dans : <code>target/calculatrice-rest.war</code>
+            </div>
+
+            <h3>7.2 Déploiement sur Tomcat</h3>
+            <p>Deux méthodes de déploiement sont possibles :</p>
+
+            <h4>Méthode 1 : Déploiement manuel</h4>
+            <ol style="margin-left: 40px;">
+                <li>Copier le fichier <code>calculatrice-rest.war</code> dans le dossier <code>webapps/</code> de Tomcat</li>
+                <li>Démarrer Tomcat : <code>bin/startup.bat</code> (Windows) ou <code>bin/startup.sh</code> (Linux)</li>
+                <li>Tomcat décompresse automatiquement le WAR</li>
+                <li>L'application est accessible à : <code>http://localhost:8080/calculatrice-rest/</code></li>
+            </ol>
+
+            <h4>Méthode 2 : Via le Manager de Tomcat</h4>
+            <ol style="margin-left: 40px;">
+                <li>Accéder à <code>http://localhost:8080/manager/html</code></li>
+                <li>Utiliser la section "WAR file to deploy"</li>
+                <li>Sélectionner le fichier <code>calculatrice-rest.war</code></li>
+                <li>Cliquer sur "Deploy"</li>
+            </ol>
+
+            <h3>7.3 Vérification du déploiement</h3>
+            <p>
+                Une fois déployé, l'API est accessible via l'URL de base :<br>
+                <code>http://localhost:8080/calculatrice-rest/api/calculatrice</code>
+            </p>
+        </div>
+
+        <!-- 8. Tests Postman -->
+        <div class="section">
+            <h2>8. Tests avec Postman</h2>
+
+            <h3>8.1 Endpoints disponibles</h3>
+            
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/calculatrice/addition?a={valeur1}&b={valeur2}</span>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/calculatrice/soustraction?a={valeur1}&b={valeur2}</span>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/calculatrice/multiplication?a={valeur1}&b={valeur2}</span>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/calculatrice/division?a={valeur1}&b={valeur2}</span>
+            </div>
+
+            <h3>8.2 Test 1 : Addition</h3>
+            <p><strong>Requête :</strong> <code>GET http://localhost:8080/tp3/api/calculatrice/addition?a=10&b=20</code></p>
+            
+            <div class="screenshot">
+                <img src="file:///C:/Users/Mohamed Amich/.gemini/antigravity/brain/19c37f2e-7ce3-403c-a661-b45872104986/postman_addition_test_1766079928535.png" 
+                     alt="Test Addition Postman">
+                <p>Figure 2 : Test de l'opération Addition (10 + 20 = 30)</p>
+            </div>
+
+            <p><strong>Réponse JSON :</strong></p>
+            <div class="code-block">
+<pre>{
+    "operation": "ADDITION",
+    "operandeA": 10.0,
+    "operandeB": 20.0,
+    "resultat": 30.0,
+    "message": "Succès",
+    "succes": true
+}</pre>
+            </div>
+
+            <h3>8.3 Test 2 : Soustraction</h3>
+            <p><strong>Requête :</strong> <code>GET http://localhost:8080/tp3/api/calculatrice/soustraction?a=10&b=5</code></p>
+            
+            <div class="screenshot">
+                <img src="file:///C:/Users/Mohamed Amich/.gemini/antigravity/brain/19c37f2e-7ce3-403c-a661-b45872104986/postman_subtraction_test_1766079998526.png" 
+                     alt="Test Soustraction Postman">
+                <p>Figure 3 : Test de l'opération Soustraction (10 - 5 = 5)</p>
+            </div>
+
+            <p><strong>Réponse JSON :</strong></p>
+            <div class="code-block">
+<pre>{
+    "operation": "SOUSTRACTION",
+    "operandeA": 10.0,
+    "operandeB": 5.0,
+    "resultat": 5.0,
+    "message": "Succès",
+    "succes": true
+}</pre>
+            </div>
+
+            <h3>8.4 Test 3 : Multiplication</h3>
+            <p><strong>Requête :</strong> <code>GET http://localhost:8080/tp3/api/calculatrice/multiplication?a=5&b=5</code></p>
+            
+            <div class="screenshot">
+                <img src="file:///C:/Users/Mohamed Amich/.gemini/antigravity/brain/19c37f2e-7ce3-403c-a661-b45872104986/postman_multiplication_test_1766079948053.png" 
+                     alt="Test Multiplication Postman">
+                <p>Figure 4 : Test de l'opération Multiplication (5 × 5 = 25)</p>
+            </div>
+
+            <p><strong>Réponse JSON :</strong></p>
+            <div class="code-block">
+<pre>{
+    "operation": "MULTIPLICATION",
+    "operandeA": 5.0,
+    "operandeB": 5.0,
+    "resultat": 25.0,
+    "message": "Succès",
+    "succes": true
+}</pre>
+            </div>
+
+            <h3>8.5 Test 4 : Division</h3>
+            <p><strong>Requête :</strong> <code>GET http://localhost:8080/tp3/api/calculatrice/division?a=10&b=2</code></p>
+            
+            <div class="screenshot">
+                <img src="file:///C:/Users/Mohamed Amich/.gemini/antigravity/brain/19c37f2e-7ce3-403c-a661-b45872104986/postman_division_test_1766079970232.png" 
+                     alt="Test Division Postman">
+                <p>Figure 5 : Test de l'opération Division (10 ÷ 2 = 5)</p>
+            </div>
+
+            <p><strong>Réponse JSON :</strong></p>
+            <div class="code-block">
+<pre>{
+    "operation": "DIVISION",
+    "operandeA": 10.0,
+    "operandeB": 2.0,
+    "resultat": 5.0,
+    "message": "Succès",
+    "succes": true
+}</pre>
+            </div>
+
+            <h3>8.6 Gestion des erreurs</h3>
+            <p><strong>Test : Division par zéro</strong></p>
+            <p>Requête : <code>GET /api/calculatrice/division?a=10&b=0</code></p>
+            
+            <div class="code-block">
+<pre>{
+    "operation": "DIVISION",
+    "operandeA": 10.0,
+    "operandeB": 0.0,
+    "resultat": 0.0,
+    "message": "Division par zéro impossible",
+    "succes": false
+}</pre>
+            </div>
+        </div>
+
+        <!-- 9. Fonctionnement -->
+        <div class="section">
+            <h2>9. Fonctionnement de l'API</h2>
+
+            <h3>9.1 Principe REST</h3>
+            <p>
+                L'API respecte les principes REST (Representational State Transfer) :
+            </p>
+            <ul style="margin-left: 40px;">
+                <li><strong>Stateless</strong> : Chaque requête est indépendante, aucune session n'est maintenue</li>
+                <li><strong>Ressources identifiées par URI</strong> : Chaque opération a son propre chemin</li>
+                <li><strong>Méthode HTTP GET</strong> : Utilisée pour récupérer des résultats (opérations idempotentes)</li>
+                <li><strong>Format JSON</strong> : Représentation standardisée des données</li>
+                <li><strong>Codes HTTP</strong> : 200 OK pour succès, 400 Bad Request pour erreurs</li>
+            </ul>
+
+            <h3>9.2 Format de réponse uniforme</h3>
+            <p>Toutes les réponses suivent la même structure :</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Champ</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>operation</td>
+                        <td>String</td>
+                        <td>Type d'opération effectuée</td>
+                    </tr>
+                    <tr>
+                        <td>operandeA</td>
+                        <td>Double</td>
+                        <td>Premier opérande</td>
+                    </tr>
+                    <tr>
+                        <td>operandeB</td>
+                        <td>Double</td>
+                        <td>Deuxième opérande</td>
+                    </tr>
+                    <tr>
+                        <td>resultat</td>
+                        <td>Double</td>
+                        <td>Résultat du calcul</td>
+                    </tr>
+                    <tr>
+                        <td>message</td>
+                        <td>String</td>
+                        <td>Message de succès ou d'erreur</td>
+                    </tr>
+                    <tr>
+                        <td>succes</td>
+                        <td>Boolean</td>
+                        <td>Indicateur de succès de l'opération</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>9.3 Avantages de cette architecture</h3>
+            <ul style="margin-left: 40px;">
+                <li><strong>Séparation des préoccupations</strong> : Logique métier isolée de la couche REST</li>
+                <li><strong>Réutilisabilité</strong> : La classe Calculatrice peut être utilisée ailleurs</li>
+                <li><strong>Testabilité</strong> : Chaque couche peut être testée indépendamment</li>
+                <li><strong>Maintenabilité</strong> : Code organisé et facile à modifier</li>
+                <li><strong>Extensibilité</strong> : Ajout facile de nouvelles opérations</li>
+                <li><strong>Interopérabilité</strong> : Format JSON compatible avec tous les clients</li>
+            </ul>
+
+            <h3>9.4 Sécurité et bonnes pratiques</h3>
+            <ul style="margin-left: 40px;">
+                <li>Validation des paramètres d'entrée</li>
+                <li>Gestion des exceptions (division par zéro, paramètres invalides)</li>
+                <li>Réponses structurées avec codes HTTP appropriés</li>
+                <li>Messages d'erreur explicites pour le débogage</li>
+            </ul>
+        </div>
+
+        <!-- 10. Conclusion -->
+        <div class="section">
+            <h2>10. Conclusion</h2>
+
+            <h3>10.1 Objectifs atteints</h3>
+            <div class="success">
+                <p>✓ Service REST fonctionnel avec 4 opérations arithmétiques</p>
+                <p>✓ Architecture REST respectant les principes du cours</p>
+                <p>✓ Utilisation de JAX-RS avec Jersey</p>
+                <p>✓ Projet Maven correctement structuré</p>
+                <p>✓ Fichier WAR généré et déployable sur Tomcat</p>
+                <p>✓ Tests réussis avec Postman</p>
+                <p>✓ Gestion des erreurs implémentée</p>
+            </div>
+
+            <h3>10.2 Compétences acquises</h3>
+            <ul style="margin-left: 40px;">
+                <li>Conception et développement d'API REST en Java</li>
+                <li>Utilisation des annotations JAX-RS</li>
+                <li>Configuration de Jersey et intégration avec Tomcat</li>
+                <li>Gestion de projet Maven avec packaging WAR</li>
+                <li>Sérialisation/désérialisation JSON</li>
+                <li>Tests d'API avec Postman</li>
+                <li>Gestion des erreurs et codes HTTP</li>
+            </ul>
+
+            <h3>10.3 Améliorations possibles</h3>
+            <ul style="margin-left: 40px;">
+                <li>Ajouter des opérations mathématiques avancées (puissance, racine carrée, etc.)</li>
+                <li>Implémenter des méthodes POST pour des calculs complexes</li>
+                <li>Ajouter une authentification (JWT, OAuth2)</li>
+                <li>Mettre en place une documentation Swagger/OpenAPI</li>
+                <li>Implémenter des tests unitaires et d'intégration</li>
+                <li>Ajouter un système de logging (Log4j, SLF4J)</li>
+                <li>Créer une interface web cliente (HTML/JavaScript)</li>
+                <li>Déployer sur un serveur cloud (AWS, Azure, Heroku)</li>
+            </ul>
+
+            <h3>10.4 Livrables</h3>
+            <div class="highlight">
+                <p><strong>✓ Projet Maven complet</strong> : Disponible sur GitHub</p>
+                <p><strong>✓ Fichier WAR</strong> : <code>target/calculatrice-rest.war</code></p>
+                <p><strong>✓ Rapport PDF</strong> : Ce document avec captures Postman et schémas</p>
+                <p><strong>✓ Code source</strong> : 4 classes Java + fichiers de configuration</p>
+            </div>
+
+            <h3>10.5 Conclusion générale</h3>
+            <p>
+                Ce travail pratique a permis de mettre en œuvre concrètement les concepts de l'architecture 
+                orientée services (SOA) à travers la création d'une API REST complète. L'utilisation de 
+                JAX-RS avec Jersey démontre la puissance et la simplicité des standards Java EE pour le 
+                développement de services web modernes.
+            </p>
+            <p>
+                Le projet illustre parfaitement comment structurer une application REST professionnelle, 
+                de la conception à la mise en production, en passant par les tests. Les principes appris 
+                sont directement applicables dans un contexte professionnel pour le développement de 
+                microservices et d'architectures distribuées.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 60px; padding-top: 20px; border-top: 2px solid #ecf0f1; text-align: center; color: #7f8c8d;">
+            <p><strong>Rapport généré le 18 Décembre 2025</strong></p>
+            <p>TP3 - Service REST Calculatrice - SOA - LSI 3</p>
+        </div>
+    </div>
+</body>
+</html>
